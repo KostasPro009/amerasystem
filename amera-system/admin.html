@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amera - Admin Panel</title>
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            background: #0f0a0a; 
+            color: #e8e6e3; 
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+        }
+        
+        .matrix-bg {
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(217, 38, 38, 0.1) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        /* МОБИЛЬНАЯ ШАПКА */
+        .mobile-header {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15,10,10,0.95);
+            border-bottom: 1px solid #d92626;
+            padding: 10px 15px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        
+        .admin-header {
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            right: 0;
+            background: rgba(15,10,10,0.95); 
+            border-bottom: 1px solid #d92626;
+            padding: 15px 20px; 
+            backdrop-filter: blur(10px); 
+            z-index: 1000;
+        }
+        
+        .header-top {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .admin-logo {
+            display: flex; 
+            align-items: center;
+        }
+        
+        .logo-mini {
+            width: 40px; 
+            height: 40px; 
+            border: 1px solid #d92626; 
+            border-radius: 50%;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            margin-right: 10px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: #d92626;
+        }
+        
+        .admin-nav {
+            display: flex; 
+            gap: 8px; 
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            padding: 8px 15px; 
+            border: 1px solid #8b1a1a; 
+            background: rgba(15,10,10,0.8); 
+            color: #e8e6e3; 
+            cursor: pointer; 
+            font-family: 'Courier New'; 
+            font-size: 0.8em;
+            transition: all 0.3s ease; 
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+        
+        .nav-btn.active { 
+            border-color: #d92626; 
+            background: rgba(217,38,38,0.2); 
+        }
+        
+        /* ОСНОВНОЙ КОНТЕНТ */
+        .admin-container { 
+            padding: 140px 20px 80px;
+            max-width: 1200px; 
+            margin: 0 auto;
+        }
+        
+        .admin-panel { 
+            display: none; 
+        }
+        
+        .admin-panel.active { 
+            display: block; 
+        }
+        
+        /* КАРТОЧКИ */
+        .card {
+            border: 1px solid #8b1a1a; 
+            background: rgba(15,10,10,0.7);
+            padding: 20px; 
+            margin-bottom: 20px; 
+            border-radius: 5px;
+        }
+        
+        .card h2 {
+            color: #d92626;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        /* СТАТИСТИКА */
+        .stats-grid {
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px; 
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            padding: 15px; 
+            border: 1px solid #8b1a1a; 
+            background: rgba(15,10,10,0.7); 
+            text-align: center;
+            border-radius: 5px;
+        }
+        
+        .stat-value { 
+            font-size: 1.5em; 
+            color: #d92626; 
+            font-weight: bold; 
+            margin: 5px 0;
+        }
+        
+        .stat-label { 
+            font-size: 0.7em; 
+            color: #e8e6e3; 
+            opacity: 0.8; 
+        }
+        
+        /* ТАБЛИЦЫ */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+        
+        .data-table {
+            width: 100%; 
+            border-collapse: collapse;
+            font-size: 0.8em;
+        }
+        
+        .data-table th, 
+        .data-table td {
+            padding: 8px 10px; 
+            text-align: left; 
+            border-bottom: 1px solid #8b1a1a;
+            white-space: nowrap;
+        }
+        
+        .data-table th { 
+            background: rgba(139,26,26,0.3); 
+            color: #d92626; 
+        }
+        
+        /* КАРТОЧКИ ИГРЫ */
+        .cards-management {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .admin-card {
+            border: 1px solid;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .card-common { border-color: #4488ff; }
+        .card-rare { border-color: #44ff44; }
+        .card-epic { border-color: #d92626; }
+        .card-legendary { border-color: #ffaa00; }
+        
+        .card-emoji {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        
+        /* ФОРМЫ */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.8em;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 8px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #8b1a1a;
+            color: #e8e6e3;
+            border-radius: 3px;
+            font-family: 'Courier New';
+        }
+        
+        /* КНОПКИ */
+        .btn {
+            padding: 8px 15px; 
+            border: 1px solid #d92626; 
+            background: rgba(217,38,38,0.2); 
+            color: #e8e6e3; 
+            cursor: pointer; 
+            font-family: 'Courier New'; 
+            margin: 2px;
+            transition: all 0.3s ease;
+            border-radius: 3px;
+            font-size: 0.8em;
+        }
+        
+        .btn:hover {
+            background: rgba(217,38,38,0.3);
+        }
+        
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 0.7em;
+        }
+        
+        .btn-success {
+            border-color: #44ff44;
+            background: rgba(68,255,68,0.1);
+        }
+        
+        .btn-warning {
+            border-color: #ffaa00;
+            background: rgba(255,170,0,0.1);
+        }
+        
+        /* ТЕРМИНАЛ */
+        .terminal {
+            border: 1px solid #d92626; 
+            background: #000000; 
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .terminal-output {
+            height: 200px; 
+            overflow-y: auto; 
+            padding: 15px;
+            background: #000000; 
+            color: #e8e6e3; 
+            font-size: 0.8em;
+        }
+        
+        .terminal-input-line {
+            display: flex; 
+            align-items: center; 
+            padding: 10px;
+            background: #0a0a0a; 
+            border-top: 1px solid #d92626;
+        }
+        
+        .terminal-cmd-input {
+            flex: 1; 
+            background: transparent; 
+            border: none;
+            color: #e8e6e3; 
+            font-family: 'Courier New', monospace;
+            font-size: 0.8em; 
+            outline: none;
+        }
+        
+        /* МОБИЛЬНАЯ НАВИГАЦИЯ ВНИЗУ */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15,10,10,0.98);
+            border-top: 1px solid #d92626;
+            padding: 10px 5px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        
+        .bottom-nav-btn {
+            flex: 1;
+            padding: 8px 5px;
+            border: none;
+            background: none;
+            color: #e8e6e3;
+            cursor: pointer;
+            font-size: 0.7em;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+        
+        .bottom-nav-btn.active {
+            color: #d92626;
+        }
+        
+        .nav-icon {
+            font-size: 1.2em;
+        }
+        
+        /* ФУТЕР */
+        .admin-footer {
+            text-align: center; 
+            padding: 20px; 
+            color: #8b1a1a; 
+            font-size: 0.7em;
+        }
+
+        /* МОДАЛЬНЫЕ ОКНА */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: #0f0a0a;
+            border: 2px solid #d92626;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        /* МОБИЛЬНАЯ ВЕРСИЯ */
+        @media (max-width: 768px) {
+            .admin-header {
+                display: none;
+            }
+            
+            .mobile-header {
+                display: block;
+            }
+            
+            .mobile-bottom-nav {
+                display: flex;
+            }
+            
+            .admin-container {
+                padding: 80px 15px 70px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            
+            .stat-card {
+                padding: 12px;
+            }
+            
+            .stat-value {
+                font-size: 1.2em;
+            }
+            
+            .card {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            
+            .data-table {
+                font-size: 0.7em;
+            }
+            
+            .data-table th, 
+            .data-table td {
+                padding: 6px 8px;
+            }
+            
+            .cards-management {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .terminal-output {
+                height: 150px;
+                padding: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .admin-container {
+                padding: 70px 10px 60px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card {
+                padding: 12px;
+            }
+            
+            .cards-management {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="matrix-bg"></div>
+    
+    <!-- МОБИЛЬНАЯ ШАПКА -->
+    <div class="mobile-header">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="logo-mini">AM</div>
+                <div>
+                    <div style="font-size: 0.9em; font-weight: bold;">AMERA ADMIN</div>
+                    <div style="font-size: 0.7em; color: #d92626;" id="mobileTime">--:--</div>
+                </div>
+            </div>
+            <button class="btn btn-small" onclick="logout()">Выход</button>
+        </div>
+    </div>
+
+    <!-- ОСНОВНАЯ ШАПКА -->
+    <header class="admin-header">
+        <div class="header-top">
+            <div class="admin-logo">
+                <div class="logo-mini">AM</div>
+                <div>
+                    <div>> AMERA ADMIN PANEL</div>
+                    <div style="font-size: 0.8em; color: #d92626;">Добро пожаловать, <span id="adminName">admin</span></div>
+                </div>
+            </div>
+            <div style="font-size: 0.8em;">
+                <span id="systemTime">--:--:--</span>
+            </div>
+        </div>
+        
+        <nav class="admin-nav">
+            <button class="nav-btn" onclick="window.location.href='index.html'">← ГЛАВНАЯ</button>
+            <button class="nav-btn active" data-panel="dashboard">📊 ПАНЕЛЬ</button>
+            <button class="nav-btn" data-panel="users">👥 ПОЛЬЗОВАТЕЛИ</button>
+            <button class="nav-btn" data-panel="game">🎮 ИГРА</button>
+            <button class="nav-btn" data-panel="cards">🃏 КАРТЫ</button>
+            <button class="nav-btn" data-panel="terminal">💻 ТЕРМИНАЛ</button>
+            <button class="nav-btn" onclick="logout()">🚪 ВЫХОД</button>
+        </nav>
+    </header>
+
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <div class="admin-container">
+        <!-- ПАНЕЛЬ ДАШБОРДА -->
+        <div class="admin-panel active" id="dashboard-panel">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalUsers">0</div>
+                    <div class="stat-label">ПОЛЬЗОВАТЕЛЕЙ</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalCards">0</div>
+                    <div class="stat-label">ВСЕГО КАРТ</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalSpins">0</div>
+                    <div class="stat-label">ОТКРЫТИЙ</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="gameEconomy">0</div>
+                    <div class="stat-label">КРЕДИТОВ В СИСТЕМЕ</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>> СИСТЕМНЫЙ МОНИТОР</h2>
+                <div>> Статус игры: <span style="color:#44ff44">АКТИВНА</span></div>
+                <div>> Всего карт в системе: <span id="totalCardsInSystem">0</span></div>
+                <div>> Активных сделок: <span id="activeTrades">0</span></div>
+                <div>> Последняя активность: <span id="lastGameActivity">-</span></div>
+            </div>
+
+            <div class="card">
+                <h2>> БЫСТРЫЕ ДЕЙСТВИЯ</h2>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn" onclick="giveAllUsersCredits(1000)">🎁 Выдать всем 1000 кредитов</button>
+                    <button class="btn btn-warning" onclick="resetAllCollections()">🔄 Сбросить все коллекции</button>
+                    <button class="btn btn-success" onclick="generateDailyEvent()">🎪 Создать ивент</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ПАНЕЛЬ ПОЛЬЗОВАТЕЛЕЙ -->
+        <div class="admin-panel" id="users-panel">
+            <div class="card">
+                <h2>> УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ</h2>
+                <button class="btn" id="refreshUsers">🔄 ОБНОВИТЬ</button>
+                
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ИМЯ</th>
+                                <th>РОЛЬ</th>
+                                <th>БАЛАНС</th>
+                                <th>КАРТЫ</th>
+                                <th>СПИНЫ</th>
+                                <th>ДЕЙСТВИЯ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ПАНЕЛЬ УПРАВЛЕНИЯ ИГРОЙ -->
+        <div class="admin-panel" id="game-panel">
+            <div class="card">
+                <h2>> НАСТРОЙКИ ИГРЫ</h2>
+                
+                <div class="form-group">
+                    <label class="form-label">Базовая награда за вход:</label>
+                    <input type="number" class="form-input" id="dailyBonus" value="500">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Шансы обычного кейса (%):</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <input type="number" class="form-input" placeholder="Обычные" value="75">
+                        <input type="number" class="form-input" placeholder="Редкие" value="25">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Цены кейсов:</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                        <input type="number" class="form-input" placeholder="Обычный" value="100">
+                        <input type="number" class="form-input" placeholder="Премиум" value="500">
+                        <input type="number" class="form-input" placeholder="Легендарный" value="1000">
+                    </div>
+                </div>
+                
+                <button class="btn btn-success">💾 СОХРАНИТЬ НАСТРОЙКИ</button>
+            </div>
+
+            <div class="card">
+                <h2>> УПРАВЛЕНИЕ ЭКОНОМИКОЙ</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <h3 style="color: #d92626; margin-bottom: 10px;">Выдача ресурсов</h3>
+                        <div class="form-group">
+                            <input type="text" class="form-input" id="targetUser" placeholder="Имя пользователя">
+                        </div>
+                        <div class="form-group">
+                            <input type="number" class="form-input" id="creditsAmount" placeholder="Количество кредитов" value="1000">
+                        </div>
+                        <button class="btn" onclick="giveUserCredits()">💰 ВЫДАТЬ КРЕДИТЫ</button>
+                        <button class="btn" onclick="giveRandomCard()">🃏 ВЫДАТЬ СЛУЧАЙНУЮ КАРТУ</button>
+                    </div>
+                    
+                    <div>
+                        <h3 style="color: #d92626; margin-bottom: 10px;">Массовые действия</h3>
+                        <button class="btn" onclick="addCreditsToAll(100)">➕ Всем +100 кредитов</button>
+                        <button class="btn" onclick="resetDailyBonuses()">🔄 Сбросить ежедневные награды</button>
+                        <button class="btn btn-warning" onclick="recalculateStats()">📊 Пересчитать статистику</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ПАНЕЛЬ УПРАВЛЕНИЯ КАРТАМИ -->
+        <div class="admin-panel" id="cards-panel">
+            <div class="card">
+                <h2>> РЕДАКТОР КАРТОЧЕК</h2>
+                
+                <div class="cards-management" id="cardsManagement">
+                    <!-- Карточки загружаются здесь -->
+                </div>
+                
+                <button class="btn" onclick="showAddCardModal()">➕ ДОБАВИТЬ КАРТОЧКУ</button>
+            </div>
+
+            <div class="card">
+                <h2>> СТАТИСТИКА КАРТОЧЕК</h2>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>КАРТА</th>
+                                <th>РЕДКОСТЬ</th>
+                                <th>ВЛАДЕЛЬЦЫ</th>
+                                <th>ВСЕГО ЭКЗ.</th>
+                                <th>ЦЕННОСТЬ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cardsStatsBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ПАНЕЛЬ ТЕРМИНАЛА -->
+        <div class="admin-panel" id="terminal-panel">
+            <div class="card">
+                <h2>> СИСТЕМНЫЙ ТЕРМИНАЛ</h2>
+                
+                <div class="terminal">
+                    <div class="terminal-output" id="terminalOutput">
+                        <div>> Amera Game Admin Terminal v2.0</div>
+                        <div>> Введите 'game help' для списка игровых команд</div>
+                    </div>
+                    <div class="terminal-input-line">
+                        <span style="color: #d92626; margin-right: 5px;">game@admin:~$</span>
+                        <input type="text" class="terminal-cmd-input" id="terminalInput" placeholder="Введите команду...">
+                    </div>
+                </div>
+                
+                <div style="margin-top: 10px;">
+                    <button class="btn btn-small" onclick="clearTerminal()">ОЧИСТИТЬ</button>
+                    <button class="btn btn-small" onclick="showGameHelp()">ПОМОЩЬ</button>
+                    <button class="btn btn-small" onclick="runGameReport()">ОТЧЕТ</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>> ИГРОВЫЕ КОМАНДЫ</h2>
+                <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px;">
+                    <button class="btn btn-small" onclick="insertCommand('game stats')">game stats</button>
+                    <button class="btn btn-small" onclick="insertCommand('user add credits @all 500')">add credits</button>
+                    <button class="btn btn-small" onclick="insertCommand('cards list')">cards list</button>
+                    <button class="btn btn-small" onclick="insertCommand('economy reset')">economy reset</button>
+                    <button class="btn btn-small" onclick="insertCommand('give card @admin 1')">give card</button>
+                    <button class="btn btn-small" onclick="insertCommand('market cleanup')">market cleanup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО ДОБАВЛЕНИЯ КАРТОЧКИ -->
+    <div class="modal" id="addCardModal">
+        <div class="modal-content">
+            <h3>➕ ДОБАВИТЬ НОВУЮ КАРТОЧКУ</h3>
+            <div class="form-group">
+                <label class="form-label">Название:</label>
+                <input type="text" class="form-input" id="newCardName">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Эмодзи:</label>
+                <input type="text" class="form-input" id="newCardEmoji" maxlength="2">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Редкость:</label>
+                <select class="form-input" id="newCardRarity">
+                    <option value="common">🟦 Обычная</option>
+                    <option value="rare">🟩 Редкая</option>
+                    <option value="epic">🟥 Эпическая</option>
+                    <option value="legendary">🟧 Легендарная</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Ценность:</label>
+                <input type="number" class="form-input" id="newCardValue">
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn btn-success" onclick="addNewCard()">✅ СОЗДАТЬ</button>
+                <button class="btn" onclick="closeAddCardModal()">❌ ОТМЕНА</button>
+            </div>
+        </div>
+    </div>
+
+<!-- МОБИЛЬНАЯ НАВИГАЦИЯ ВНИЗУ -->
+<nav class="mobile-bottom-nav">
+    <button class="bottom-nav-btn" onclick="window.location.href='index.html'">
+        <span class="nav-icon">🏠</span>
+        <span>Главная</span>
+    </button>
+    <button class="bottom-nav-btn active" data-panel="dashboard">
+        <span class="nav-icon">📊</span>
+        <span>Панель</span>
+    </button>
+    <button class="bottom-nav-btn" data-panel="users">
+        <span class="nav-icon">👥</span>
+        <span>Юзеры</span>
+    </button>
+    <button class="bottom-nav-btn" data-panel="game">
+        <span class="nav-icon">🎮</span>
+        <span>Игра</span>
+    </button>
+    <button class="bottom-nav-btn" data-panel="cards">
+        <span class="nav-icon">🃏</span>
+        <span>Карты</span>
+    </button>
+    <button class="bottom-nav-btn" data-panel="terminal">
+        <span class="nav-icon">💻</span>
+        <span>Терминал</span>
+    </button>
+</nav>
+
+    <!-- ФУТЕР -->
+    <footer class="admin-footer">
+        © 2024 Amera System. Все права защищены.
+    </footer>
+
+    <script>
+        // БАЗА ДАННЫХ КАРТОЧЕК
+        const cardsDatabase = JSON.parse(localStorage.getItem('amera_cards')) || [
+            { id: 1, name: "Кибер-дракон", rarity: "legendary", value: 5000, emoji: "🐲" },
+            { id: 2, name: "Квантовый волк", rarity: "legendary", value: 4500, emoji: "🐺" },
+            { id: 3, name: "Неоновый феникс", rarity: "epic", value: 2000, emoji: "🔥" },
+            { id: 4, name: "Стальной голем", rarity: "epic", value: 1800, emoji: "🤖" },
+            { id: 5, name: "Виртуальный кот", rarity: "epic", value: 1500, emoji: "🐱" },
+            { id: 6, name: "Хакер-призрак", rarity: "rare", value: 800, emoji: "👻" },
+            { id: 7, name: "Код-воин", rarity: "rare", value: 750, emoji: "⚔️" },
+            { id: 8, name: "Данные-змея", rarity: "rare", value: 700, emoji: "🐍" },
+            { id: 9, name: "Шифр-паук", rarity: "rare", value: 650, emoji: "🕷️" },
+            { id: 10, name: "Вирус-охотник", rarity: "rare", value: 600, emoji: "🔍" },
+            { id: 11, name: "Бит-воин", rarity: "common", value: 300, emoji: "🛡️" },
+            { id: 12, name: "Поток-птица", rarity: "common", value: 280, emoji: "🐦" },
+            { id: 13, name: "Кэш-лис", rarity: "common", value: 250, emoji: "🦊" },
+            { id: 14, name: "Сервер-медведь", rarity: "common", value: 230, emoji: "🐻" },
+            { id: 15, name: "Файл-ящер", rarity: "common", value: 200, emoji: "🦎" },
+            { id: 16, name: "Диск-орёл", rarity: "common", value: 180, emoji: "🦅" },
+            { id: 17, name: "Роутер-сова", rarity: "common", value: 170, emoji: "🦉" },
+            { id: 18, name: "Память-ёж", rarity: "common", value: 160, emoji: "🦔" },
+            { id: 19, name: "Ядро-белка", rarity: "common", value: 150, emoji: "🐿️" },
+            { id: 20, name: "Сеть-муравей", rarity: "common", value: 100, emoji: "🐜" }
+        ];
+
+        // ОСНОВНЫЕ ПЕРЕМЕННЫЕ
+        const currentUser = JSON.parse(localStorage.getItem('amera_currentUser'));
+        if(!currentUser || currentUser.role !== 'admin') {
+            alert('Требуются права администратора');
+            window.location.href = 'index.html';
+        }
+
+        const users = JSON.parse(localStorage.getItem('amera_users')) || [];
+        let startTime = new Date();
+
+        // ИНИЦИАЛИЗАЦИЯ
+        function initAdminPanel() {
+            document.getElementById('adminName').textContent = currentUser.username;
+            updateGameStats();
+            loadUsers();
+            loadCardsManagement();
+            loadCardsStats();
+            startClocks();
+            
+            // Навигация
+            document.querySelectorAll('.nav-btn[data-panel]').forEach(btn => {
+                btn.addEventListener('click', switchPanel);
+            });
+            
+            document.querySelectorAll('.bottom-nav-btn').forEach(btn => {
+                btn.addEventListener('click', switchPanel);
+            });
+            
+            document.getElementById('refreshUsers').addEventListener('click', loadUsers);
+            document.getElementById('terminalInput').addEventListener('keypress', function(e) {
+                if(e.key === 'Enter') executeCommand();
+            });
+            
+            // Сохраняем базу карточек
+            localStorage.setItem('amera_cards', JSON.stringify(cardsDatabase));
+        }
+
+        function switchPanel(e) {
+            const targetPanel = e.currentTarget.getAttribute('data-panel');
+            
+            // Обновляем активные кнопки
+            document.querySelectorAll('.nav-btn, .bottom-nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            e.currentTarget.classList.add('active');
+
+            // Скрываем все панели
+            document.querySelectorAll('.admin-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+
+            // Показываем целевую панель
+            document.getElementById(`${targetPanel}-panel`).classList.add('active');
+        }
+
+        // СТАТИСТИКА ИГРЫ
+        function updateGameStats() {
+            const totalCardsInSystem = users.reduce((total, user) => {
+                return total + (user.gameData?.cards?.reduce((sum, card) => sum + card.count, 0) || 0);
+            }, 0);
+            
+            const totalSpins = users.reduce((total, user) => {
+                return total + (user.gameData?.spinCount || 0);
+            }, 0);
+            
+            const totalEconomy = users.reduce((total, user) => {
+                return total + (user.gameData?.credits || 0);
+            }, 0);
+
+            document.getElementById('totalUsers').textContent = users.length;
+            document.getElementById('totalCards').textContent = totalCardsInSystem;
+            document.getElementById('totalSpins').textContent = totalSpins;
+            document.getElementById('gameEconomy').textContent = totalEconomy;
+            document.getElementById('totalCardsInSystem').textContent = totalCardsInSystem;
+            document.getElementById('lastGameActivity').textContent = new Date().toLocaleTimeString('ru-RU');
+        }
+
+        // УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ
+        function loadUsers() {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = users.map(user => {
+                const gameData = user.gameData || { credits: 0, cards: [], spinCount: 0 };
+                const cardsCount = gameData.cards.reduce((sum, card) => sum + card.count, 0);
+                
+                return `
+                    <tr>
+                        <td>${user.username}</td>
+                        <td>
+                            <span style="padding: 2px 6px; border-radius: 3px; font-size: 0.7em; 
+                                  ${user.role === 'admin' ? 'background:rgba(217,38,38,0.3);' : 'background:rgba(68,136,255,0.3);'}">
+                                ${user.role}
+                            </span>
+                        </td>
+                        <td>${gameData.credits} 💰</td>
+                        <td>${cardsCount} 🃏</td>
+                        <td>${gameData.spinCount} 🎰</td>
+                        <td>
+                            <button class="btn btn-small" onclick="editUserGame('${user.id}')">🎮</button>
+                            <button class="btn btn-small" onclick="resetUserGame('${user.id}')">🔄</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function editUserGame(userId) {
+            const user = users.find(u => u.id === userId);
+            if(user) {
+                const credits = prompt('Новое количество кредитов:', user.gameData?.credits || 0);
+                if(credits !== null) {
+                    if(!user.gameData) user.gameData = { credits: 0, cards: [], spinCount: 0 };
+                    user.gameData.credits = parseInt(credits);
+                    localStorage.setItem('amera_users', JSON.stringify(users));
+                    loadUsers();
+                    updateGameStats();
+                    alert('Баланс обновлен!');
+                }
+            }
+        }
+
+        function resetUserGame(userId) {
+            if(confirm('Вы уверены что хотите сбросить игровые данные пользователя?')) {
+                const user = users.find(u => u.id === userId);
+                if(user) {
+                    user.gameData = { credits: 1000, cards: [], spinCount: 0, dailyBonus: null };
+                    localStorage.setItem('amera_users', JSON.stringify(users));
+                    loadUsers();
+                    updateGameStats();
+                    alert('Игровые данные сброшены!');
+                }
+            }
+        }
+
+        // УПРАВЛЕНИЕ КАРТОЧКАМИ
+        function loadCardsManagement() {
+            const container = document.getElementById('cardsManagement');
+            container.innerHTML = cardsDatabase.map(card => `
+                <div class="admin-card card-${card.rarity}">
+                    <div class="card-emoji">${card.emoji}</div>
+                    <div style="font-size: 0.7em; font-weight: bold;">${card.name}</div>
+                    <div style="font-size: 0.6em; opacity: 0.8;">${getRarityName(card.rarity)}</div>
+                    <div style="font-size: 0.6em; margin-top: 5px;">${card.value} 💰</div>
+                    <div style="margin-top: 5px;">
+                        <button class="btn btn-small" onclick="editCard(${card.id})">✏️</button>
+                        <button class="btn btn-small" onclick="deleteCard(${card.id})">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadCardsStats() {
+            const tbody = document.getElementById('cardsStatsBody');
+            
+            // Считаем статистику по карточкам
+            const cardStats = cardsDatabase.map(card => {
+                let owners = 0;
+                let totalCopies = 0;
+                
+                users.forEach(user => {
+                    const userCard = user.gameData?.cards?.find(uc => uc.cardId === card.id);
+                    if(userCard) {
+                        owners++;
+                        totalCopies += userCard.count;
+                    }
+                });
+                
+                return { ...card, owners, totalCopies };
+            });
+            
+            tbody.innerHTML = cardStats.map(stat => `
+                <tr>
+                    <td>${stat.emoji} ${stat.name}</td>
+                    <td>${getRarityName(stat.rarity)}</td>
+                    <td>${stat.owners}</td>
+                    <td>${stat.totalCopies}</td>
+                    <td>${stat.value} 💰</td>
+                </tr>
+            `).join('');
+        }
+
+        function getRarityName(rarity) {
+            const names = {
+                'common': '🟦 Обычная',
+                'rare': '🟩 Редкая',
+                'epic': '🟥 Эпическая', 
+                'legendary': '🟧 Легендарная'
+            };
+            return names[rarity] || rarity;
+        }
+
+        function showAddCardModal() {
+            document.getElementById('addCardModal').style.display = 'flex';
+        }
+
+        function closeAddCardModal() {
+            document.getElementById('addCardModal').style.display = 'none';
+        }
+
+        function addNewCard() {
+            const name = document.getElementById('newCardName').value;
+            const emoji = document.getElementById('newCardEmoji').value;
+            const rarity = document.getElementById('newCardRarity').value;
+            const value = parseInt(document.getElementById('newCardValue').value);
+            
+            if(!name || !emoji || !value) {
+                alert('Заполните все поля!');
+                return;
+            }
+            
+            const newCard = {
+                id: Math.max(...cardsDatabase.map(c => c.id)) + 1,
+                name: name,
+                emoji: emoji,
+                rarity: rarity,
+                value: value
+            };
+            
+            cardsDatabase.push(newCard);
+            localStorage.setItem('amera_cards', JSON.stringify(cardsDatabase));
+            
+            loadCardsManagement();
+            loadCardsStats();
+            closeAddCardModal();
+            
+            // Очищаем форму
+            document.getElementById('newCardName').value = '';
+            document.getElementById('newCardEmoji').value = '';
+            document.getElementById('newCardValue').value = '';
+            
+            alert('Карточка добавлена!');
+        }
+
+        function editCard(cardId) {
+            const card = cardsDatabase.find(c => c.id === cardId);
+            if(card) {
+                const newValue = prompt('Новая ценность карточки:', card.value);
+                if(newValue !== null) {
+                    card.value = parseInt(newValue);
+                    localStorage.setItem('amera_cards', JSON.stringify(cardsDatabase));
+                    loadCardsManagement();
+                    loadCardsStats();
+                    alert('Ценность обновлена!');
+                }
+            }
+        }
+
+        function deleteCard(cardId) {
+            if(confirm('Вы уверены что хотите удалить эту карточку?')) {
+                const index = cardsDatabase.findIndex(c => c.id === cardId);
+                if(index !== -1) {
+                    cardsDatabase.splice(index, 1);
+                    localStorage.setItem('amera_cards', JSON.stringify(cardsDatabase));
+                    loadCardsManagement();
+                    loadCardsStats();
+                    alert('Карточка удалена!');
+                }
+            }
+        }
+
+        // АДМИНСКИЕ КОМАНДЫ
+        function giveAllUsersCredits(amount) {
+            users.forEach(user => {
+                if(!user.gameData) user.gameData = { credits: 0, cards: [], spinCount: 0 };
+                user.gameData.credits += amount;
+            });
+            localStorage.setItem('amera_users', JSON.stringify(users));
+            loadUsers();
+            updateGameStats();
+            alert(`Всем пользователям выдано ${amount} кредитов!`);
+        }
+
+        function giveUserCredits() {
+            const username = document.getElementById('targetUser').value;
+            const amount = parseInt(document.getElementById('creditsAmount').value);
+            
+            const user = users.find(u => u.username === username);
+            if(user) {
+                if(!user.gameData) user.gameData = { credits: 0, cards: [], spinCount: 0 };
+                user.gameData.credits += amount;
+                localStorage.setItem('amera_users', JSON.stringify(users));
+                loadUsers();
+                updateGameStats();
+                alert(`Пользователю ${username} выдано ${amount} кредитов!`);
+            } else {
+                alert('Пользователь не найден!');
+            }
+        }
+
+        function giveRandomCard() {
+            const username = document.getElementById('targetUser').value;
+            const user = users.find(u => u.username === username);
+            
+            if(user) {
+                const randomCard = cardsDatabase[Math.floor(Math.random() * cardsDatabase.length)];
+                
+                if(!user.gameData) user.gameData = { credits: 0, cards: [], spinCount: 0 };
+                if(!user.gameData.cards) user.gameData.cards = [];
+                
+                const existingCard = user.gameData.cards.find(c => c.cardId === randomCard.id);
+                if(existingCard) {
+                    existingCard.count++;
+                } else {
+                    user.gameData.cards.push({ cardId: randomCard.id, count: 1 });
+                }
+                
+                localStorage.setItem('amera_users', JSON.stringify(users));
+                loadUsers();
+                updateGameStats();
+                alert(`Пользователь ${username} получил карточку: ${randomCard.emoji} ${randomCard.name}`);
+            } else {
+                alert('Пользователь не найден!');
+            }
+        }
+
+        function resetAllCollections() {
+            if(confirm('ВЫ УВЕРЕНЫ? Это сбросит ВСЕ коллекции пользователей!')) {
+                users.forEach(user => {
+                    user.gameData = { credits: 1000, cards: [], spinCount: 0, dailyBonus: null };
+                });
+                localStorage.setItem('amera_users', JSON.stringify(users));
+                loadUsers();
+                updateGameStats();
+                alert('Все коллекции сброшены!');
+            }
+        }
+
+        // ТЕРМИНАЛ
+        function executeCommand() {
+            const input = document.getElementById('terminalInput');
+            const command = input.value.trim();
+            const output = document.getElementById('terminalOutput');
+            
+            if(!command) return;
+            
+            output.innerHTML += `<div style="color: #d92626;">game@admin:~$ ${command}</div>`;
+            
+            const args = command.split(' ');
+            const cmd = args[0];
+            
+            const responses = {
+                'game stats': `> Статистика игры:
+Пользователей: ${users.length}
+Всего карт в системе: ${users.reduce((total, user) => total + (user.gameData?.cards?.reduce((sum, card) => sum + card.count, 0) || 0), 0)}
+Всего открытий: ${users.reduce((total, user) => total + (user.gameData?.spinCount || 0), 0)}
+Кредитов в системе: ${users.reduce((total, user) => total + (user.gameData?.credits || 0), 0)}`,
+                
+                'game help': `> Игровые команды:
+game stats - Статистика игры
+user add credits <username> <amount> - Выдать кредиты
+user reset <username> - Сбросить данные
+cards list - Список карточек
+economy reset - Сбросить экономику
+give card <username> <cardId> - Выдать карточку`,
+
+                'cards list': `> Все карточки (${cardsDatabase.length}):
+${cardsDatabase.map(card => `  ${card.id}. ${card.emoji} ${card.name} [${card.rarity}] - ${card.value}💰`).join('\n')}`
+            };
+            
+            // Обработка сложных команд
+            if(cmd === 'user' && args[1] === 'add' && args[2] === 'credits') {
+                const targetUser = args[3];
+                const amount = parseInt(args[4]);
+                const user = users.find(u => u.username === targetUser);
+                
+                if(user && amount) {
+                    if(!user.gameData) user.gameData = { credits: 0, cards: [], spinCount: 0 };
+                    user.gameData.credits += amount;
+                    localStorage.setItem('amera_users', JSON.stringify(users));
+                    output.innerHTML += `<div>> ✅ Пользователю ${targetUser} выдано ${amount} кредитов</div>`;
+                } else {
+                    output.innerHTML += `<div>> ❌ Ошибка: пользователь не найден или неверная сумма</div>`;
+                }
+            } else {
+                output.innerHTML += `<div>${responses[command] || '> ❌ Команда не найдена. Введите "game help" для справки.'}</div>`;
+            }
+            
+            input.value = '';
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearTerminal() {
+            document.getElementById('terminalOutput').innerHTML = 
+                '<div>> Amera Game Admin Terminal v2.0</div>';
+        }
+
+        function showGameHelp() {
+            document.getElementById('terminalInput').value = 'game help';
+            executeCommand();
+        }
+
+        function insertCommand(cmd) {
+            document.getElementById('terminalInput').value = cmd;
+            document.getElementById('terminalInput').focus();
+        }
+
+        // СЛУЖЕБНЫЕ ФУНКЦИИ
+        function startClocks() {
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('systemTime').textContent = now.toLocaleTimeString('ru-RU');
+                document.getElementById('mobileTime').textContent = now.toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
+            }, 1000);
+            setInterval(updateGameStats, 30000);
+        }
+
+        function logout() {
+            localStorage.removeItem('amera_currentUser');
+            window.location.href = 'index.html';
+        }
+
+        // ЗАПУСК
+        document.addEventListener('DOMContentLoaded', initAdminPanel);
+    </script>
+</body>
+</html>

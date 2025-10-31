@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amera System</title>
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            background: #0f0a0a; 
+            color: #e8e6e3; 
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .matrix-bg {
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(217, 38, 38, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 26, 26, 0.08) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        .main-container { 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 20px; 
+        }
+        
+        .logo-container {
+            position: relative;
+            margin-bottom: 30px;
+        }
+        
+        .logo-shield {
+            width: 150px; 
+            height: 150px; 
+            border: 2px solid #d92626; 
+            border-radius: 50%;
+            background: rgba(15, 10, 10, 0.8);
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            position: relative;
+            box-shadow: 
+                0 0 40px rgba(217, 38, 38, 0.4),
+                inset 0 0 40px rgba(217, 38, 38, 0.1);
+            animation: logoGlow 3s ease-in-out infinite alternate;
+        }
+        
+        .logo-text {
+            font-size: 2em; 
+            font-weight: bold; 
+            color: #d92626;
+            text-shadow: 0 0 20px rgba(217, 38, 38, 0.7);
+            letter-spacing: 3px;
+        }
+        
+        @keyframes logoGlow {
+            0% { box-shadow: 0 0 30px rgba(217, 38, 38, 0.3); }
+            100% { box-shadow: 0 0 50px rgba(217, 38, 38, 0.6); }
+        }
+        
+        .main-nav {
+            display: flex; 
+            gap: 15px; 
+            margin: 30px 0; 
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .nav-item {
+            padding: 15px 25px; 
+            border: 1px solid #d92626; 
+            background: rgba(15, 10, 10, 0.7); 
+            cursor: pointer;
+            transition: all 0.3s ease; 
+            text-align: center;
+            min-width: 200px;
+            font-size: 1em;
+            border-radius: 5px;
+        }
+        
+        .nav-item:hover {
+            background: rgba(217, 38, 38, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .game-promo {
+            border: 1px solid #d92626;
+            background: rgba(15, 10, 10, 0.8);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            max-width: 500px;
+            text-align: center;
+        }
+        
+        .game-features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .feature {
+            padding: 10px;
+            border: 1px solid rgba(217, 38, 38, 0.3);
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        
+        .status-terminal {
+            width: 100%; 
+            max-width: 500px; 
+            border: 1px solid #d92626;
+            background: rgba(15, 10, 10, 0.8); 
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+        
+        .terminal-header {
+            background: rgba(139, 26, 26, 0.3); 
+            padding: 10px 15px;
+            border-bottom: 1px solid #d92626; 
+            font-weight: bold;
+            display: flex; 
+            justify-content: space-between;
+        }
+        
+        .terminal-content { 
+            padding: 20px; 
+        }
+        
+        .status-line { 
+            margin-bottom: 8px; 
+            font-size: 0.9em;
+            display: flex; 
+            align-items: center;
+        }
+        
+        .status-icon { 
+            margin-right: 10px; 
+        }
+        
+        .blink { 
+            animation: blink 1s infinite; 
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; } 
+            51%, 100% { opacity: 0; }
+        }
+        
+        .login-terminal {
+            width: 100%; 
+            max-width: 400px; 
+            border: 1px solid #d92626; 
+            background: rgba(15, 10, 10, 0.9); 
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+        
+        .login-form { 
+            padding: 20px; 
+        }
+        
+        .input-group { 
+            margin-bottom: 15px; 
+        }
+        
+        .input-group label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-size: 0.9em; 
+        }
+        
+        .terminal-input {
+            width: 100%; 
+            padding: 12px; 
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #8b1a1a; 
+            color: #e8e6e3; 
+            font-family: 'Courier New'; 
+            font-size: 1em;
+            border-radius: 3px;
+        }
+        
+        .login-btn {
+            padding: 12px 25px; 
+            border: 1px solid #d92626; 
+            background: rgba(217, 38, 38, 0.2); 
+            color: #e8e6e3; 
+            cursor: pointer; 
+            width: 100%; 
+            font-family: 'Courier New';
+            transition: all 0.3s ease; 
+            font-size: 1em;
+            border-radius: 3px;
+            margin-top: 10px;
+        }
+        
+        .hidden { 
+            display: none; 
+        }
+        
+        .message { 
+            padding: 10px; 
+            margin-top: 10px; 
+            border-radius: 3px; 
+            font-size: 0.9em; 
+        }
+        
+        .error { 
+            background: rgba(255,68,68,0.1); 
+            border: 1px solid #ff4444; 
+        }
+        
+        .success { 
+            background: rgba(68,255,68,0.1); 
+            border: 1px solid #44ff44; 
+        }
+        
+        .support-sticker {
+            position: fixed; 
+            bottom: 15px; 
+            right: 15px;
+            background: rgba(217, 38, 38, 0.1); 
+            border: 1px solid #d92626;
+            padding: 12px; 
+            border-radius: 5px; 
+            max-width: 200px;
+            backdrop-filter: blur(10px);
+            font-size: 0.8em;
+        }
+        
+        .support-email {
+            color: #d92626; 
+            text-decoration: none; 
+            font-weight: bold;
+            display: block; 
+            margin-top: 3px; 
+            font-size: 0.8em;
+        }
+
+        @media (max-width: 768px) {
+            .main-nav {
+                flex-direction: column;
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .nav-item {
+                min-width: auto;
+                width: 100%;
+            }
+            
+            .game-features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="matrix-bg"></div>
+
+    <!-- ГЛАВНАЯ СТРАНИЦА -->
+    <div id="mainPage" class="main-container">
+        <div class="logo-container">
+            <div class="logo-shield">
+                <span class="logo-text">AMERA</span>
+            </div>
+        </div>
+        
+        <nav class="main-nav">
+            <div class="nav-item" onclick="showLogin()">
+                <span>🚀 ВХОД В СИСТЕМУ</span>
+            </div>
+            <div class="nav-item" onclick="showProfile()">
+                <span>👤 ПРОФИЛЬ</span>
+            </div>
+            <div id="adminNavItem" class="nav-item hidden" onclick="window.location.href='admin.html'">
+                <span>👑 АДМИН ПАНЕЛЬ</span>
+            </div>
+        </nav>
+        
+        <!-- ПРОМО БЛОК ИГРЫ -->
+        <div class="game-promo">
+            <h3>🎮 AMERA CARDS - КАРТОЧНАЯ ИГРА</h3>
+            <p>Собирай уникальные карты, открывай кейсы и торгуй с другими игроками!</p>
+            
+            <div class="game-features">
+                <div class="feature">🃏 20 уникальных карт</div>
+                <div class="feature">🎯 4 уровня редкости</div>
+                <div class="feature">💰 Торговая площадка</div>
+                <div class="feature">🎁 Ежедневные награды</div>
+            </div>
+        </div>
+        
+        <div class="status-terminal">
+            <div class="terminal-header">
+                > SYSTEM STATUS: <span style="color:#44ff44">ONLINE</span>
+                <span class="blink">_</span>
+            </div>
+            <div class="terminal-content">
+                <div class="status-line">
+                    <span class="status-icon">🟢</span>
+                    > Система инициализирована
+                </div>
+                <div class="status-line">
+                    <span class="status-icon">🎮</span>
+                    > Игровая система активна
+                </div>
+                <div class="status-line">
+                    <span class="status-icon">🛡️</span>
+                    > Защита активирована
+                </div>
+            </div>
+        </div>
+        
+        <div class="support-sticker">
+            <div>📧 Техническая поддержка:</div>
+            <a href="mailto:AmeraSystemOnline@gmail.com" class="support-email">
+                AmeraSystemOnline@gmail.com
+            </a>
+        </div>
+    </div>
+
+    <!-- СТРАНИЦА ВХОДА -->
+    <div id="loginPage" class="main-container hidden">
+        <div class="logo-container">
+            <div class="logo-shield">
+                <span class="logo-text">AMERA</span>
+            </div>
+        </div>
+        
+        <div class="login-terminal">
+            <div class="terminal-header">
+                > АУТЕНТИФИКАЦИЯ
+            </div>
+            
+            <form class="login-form" onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label>> Идентификатор:</label>
+                    <input type="text" class="terminal-input" id="username" required>
+                </div>
+                
+                <div class="input-group">
+                    <label>> Код доступа:</label>
+                    <input type="password" class="terminal-input" id="password" required>
+                </div>
+                
+                <button type="submit" class="login-btn">🚀 ПОДКЛЮЧИТЬСЯ</button>
+                
+                <div class="input-group" style="text-align:center; margin-top:10px;">
+                    <a href="#" onclick="showRegister(event)" style="color:#d92626; text-decoration:none; font-size:0.9em;">
+                        📝 Создать учетную запись
+                    </a>
+                </div>
+            </form>
+
+            <div id="loginMessage" class="message"></div>
+        </div>
+        
+        <div class="nav-item" onclick="showMain()" style="margin-top:15px;">
+            ← НАЗАД
+        </div>
+    </div>
+
+    <!-- СТРАНИЦА РЕГИСТРАЦИИ -->
+    <div id="registerPage" class="main-container hidden">
+        <div class="logo-container">
+            <div class="logo-shield">
+                <span class="logo-text">AMERA</span>
+            </div>
+        </div>
+        
+        <div class="login-terminal">
+            <div class="terminal-header">
+                > РЕГИСТРАЦИЯ
+            </div>
+            
+            <form class="login-form" onsubmit="handleRegister(event)">
+                <div class="input-group">
+                    <label>> Новый идентификатор:</label>
+                    <input type="text" class="terminal-input" id="regUsername" required>
+                </div>
+                
+                <div class="input-group">
+                    <label>> Код доступа:</label>
+                    <input type="password" class="terminal-input" id="regPassword" required>
+                </div>
+                
+                <div class="input-group">
+                    <label>> Подтверждение:</label>
+                    <input type="password" class="terminal-input" id="regConfirm" required>
+                </div>
+                
+                <button type="submit" class="login-btn">📝 СОЗДАТЬ УЧЕТНУЮ ЗАПИСЬ</button>
+            </form>
+
+            <div id="registerMessage" class="message"></div>
+        </div>
+        
+        <div class="nav-item" onclick="showLogin()" style="margin-top:15px;">
+            ← НАЗАД К ВХОДУ
+        </div>
+    </div>
+
+    <script>
+        // БАЗА ДАННЫХ КАРТОЧЕК
+        const cardsDatabase = [
+            { id: 1, name: "Кибер-дракон", rarity: "legendary", value: 5000, emoji: "🐲" },
+            { id: 2, name: "Квантовый волк", rarity: "legendary", value: 4500, emoji: "🐺" },
+            { id: 3, name: "Неоновый феникс", rarity: "epic", value: 2000, emoji: "🔥" },
+            { id: 4, name: "Стальной голем", rarity: "epic", value: 1800, emoji: "🤖" },
+            { id: 5, name: "Виртуальный кот", rarity: "epic", value: 1500, emoji: "🐱" },
+            { id: 6, name: "Хакер-призрак", rarity: "rare", value: 800, emoji: "👻" },
+            { id: 7, name: "Код-воин", rarity: "rare", value: 750, emoji: "⚔️" },
+            { id: 8, name: "Данные-змея", rarity: "rare", value: 700, emoji: "🐍" },
+            { id: 9, name: "Шифр-паук", rarity: "rare", value: 650, emoji: "🕷️" },
+            { id: 10, name: "Вирус-охотник", rarity: "rare", value: 600, emoji: "🔍" },
+            { id: 11, name: "Бит-воин", rarity: "common", value: 300, emoji: "🛡️" },
+            { id: 12, name: "Поток-птица", rarity: "common", value: 280, emoji: "🐦" },
+            { id: 13, name: "Кэш-лис", rarity: "common", value: 250, emoji: "🦊" },
+            { id: 14, name: "Сервер-медведь", rarity: "common", value: 230, emoji: "🐻" },
+            { id: 15, name: "Файл-ящер", rarity: "common", value: 200, emoji: "🦎" },
+            { id: 16, name: "Диск-орёл", rarity: "common", value: 180, emoji: "🦅" },
+            { id: 17, name: "Роутер-сова", rarity: "common", value: 170, emoji: "🦉" },
+            { id: 18, name: "Память-ёж", rarity: "common", value: 160, emoji: "🦔" },
+            { id: 19, name: "Ядро-белка", rarity: "common", value: 150, emoji: "🐿️" },
+            { id: 20, name: "Сеть-муравей", rarity: "common", value: 100, emoji: "🐜" }
+        ];
+
+        // ИНИЦИАЛИЗАЦИЯ ПОЛЬЗОВАТЕЛЕЙ
+        let users = JSON.parse(localStorage.getItem('amera_users')) || [];
+        
+        if(users.length === 0) {
+            users.push({
+                id: 'admin', 
+                username: 'admin', 
+                password: btoa('admin123'), 
+                role: 'admin',
+                createdAt: new Date().toISOString(),
+                gameData: {
+                    credits: 5000,
+                    cards: [],
+                    dailyBonus: null,
+                    spinCount: 0
+                }
+            });
+            localStorage.setItem('amera_users', JSON.stringify(users));
+        }
+
+        const currentUser = JSON.parse(localStorage.getItem('amera_currentUser'));
+        if(currentUser) {
+            showUserInfo(currentUser);
+        }
+
+        function showUserInfo(user) {
+            if(user.role === 'admin') {
+                document.getElementById('adminNavItem').classList.remove('hidden');
+            }
+        }
+
+        function showMain() {
+            document.getElementById('mainPage').classList.remove('hidden');
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('registerPage').classList.add('hidden');
+        }
+
+        function showLogin() {
+            document.getElementById('mainPage').classList.add('hidden');
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('registerPage').classList.add('hidden');
+        }
+
+        function showRegister(e) {
+            if(e) e.preventDefault();
+            document.getElementById('mainPage').classList.add('hidden');
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('registerPage').classList.remove('hidden');
+        }
+
+        function showProfile() {
+            const currentUser = JSON.parse(localStorage.getItem('amera_currentUser'));
+            if(currentUser) {
+                window.location.href = 'dashboard.html';
+            } else {
+                showLogin();
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const message = document.getElementById('loginMessage');
+
+            const user = users.find(u => u.username === username && u.password === btoa(password));
+            
+            if(user) {
+                message.className = 'message success';
+                message.textContent = '> ✅ Доступ предоставлен...';
+                
+                user.lastLogin = new Date().toISOString();
+                localStorage.setItem('amera_users', JSON.stringify(users));
+                localStorage.setItem('amera_currentUser', JSON.stringify(user));
+                
+                setTimeout(() => {
+                    if(user.role === 'admin') {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
+                }, 1000);
+            } else {
+                message.className = 'message error';
+                message.textContent = '> ❌ Неверный логин или пароль';
+            }
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const username = document.getElementById('regUsername').value;
+            const password = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regConfirm').value;
+            const message = document.getElementById('registerMessage');
+
+            if(password !== confirm) {
+                message.className = 'message error';
+                message.textContent = '> ❌ Пароли не совпадают';
+                return;
+            }
+
+            if(users.find(u => u.username === username)) {
+                message.className = 'message error';
+                message.textContent = '> ❌ Пользователь уже существует';
+                return;
+            }
+
+            const newUser = {
+                id: Date.now().toString(),
+                username: username,
+                password: btoa(password),
+                role: 'user',
+                createdAt: new Date().toISOString()
+            };
+
+            users.push(newUser);
+            localStorage.setItem('amera_users', JSON.stringify(users));
+            
+            message.className = 'message success';
+            message.textContent = '> ✅ Учетная запись создана!';
+            
+            setTimeout(() => showLogin(), 1500);
+        }
+    </script>
+</body>
+</html>

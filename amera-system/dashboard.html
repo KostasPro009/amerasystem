@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amera - Личный кабинет</title>
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            background: #0f0a0a; 
+            color: #e8e6e3; 
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+        }
+        
+        .matrix-bg {
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(217, 38, 38, 0.1) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        .dashboard-container { 
+            padding: 20px; 
+            max-width: 1200px; 
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+        
+        /* ШАПКА */
+        .dashboard-header {
+            padding: 20px 0; 
+            border-bottom: 1px solid #d92626; 
+            margin-bottom: 20px;
+        }
+        
+        .user-main-info {
+            display: flex; 
+            align-items: center; 
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .user-avatar {
+            width: 60px; 
+            height: 60px; 
+            border: 2px solid #d92626; 
+            border-radius: 50%;
+            background: rgba(15,10,10,0.8); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1.5em; 
+            font-weight: bold;
+            color: #d92626;
+        }
+        
+        .user-details h1 { 
+            color: #d92626; 
+            margin-bottom: 5px; 
+            font-size: 1.3em; 
+        }
+        
+        .user-stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .stat-badge {
+            padding: 5px 10px;
+            background: rgba(217,38,38,0.2);
+            border: 1px solid #d92626;
+            border-radius: 15px;
+            font-size: 0.8em;
+        }
+        
+        .user-role {
+            padding: 3px 10px; 
+            border-radius: 12px; 
+            font-size: 0.7em; 
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .role-admin { 
+            background: rgba(217,38,38,0.3); 
+            border: 1px solid #d92626; 
+        }
+        
+        .role-user { 
+            background: rgba(68,136,255,0.3); 
+            border: 1px solid #4488ff; 
+            color: #88aaff; 
+        }
+        
+        .dashboard-nav { 
+            display: flex; 
+            gap: 8px; 
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            padding: 8px 15px; 
+            border: 1px solid #8b1a1a; 
+            background: rgba(15,10,10,0.8);
+            color: #e8e6e3; 
+            cursor: pointer; 
+            font-family: 'Courier New'; 
+            transition: all 0.3s ease;
+            border-radius: 3px;
+            font-size: 0.8em;
+        }
+        
+        .nav-btn.active { 
+            border-color: #d92626; 
+            background: rgba(217,38,38,0.2); 
+        }
+        
+        .logout-btn { 
+            border-color: #ff4444; 
+            color: #ff8888; 
+        }
+        
+        /* ОСНОВНОЙ КОНТЕНТ */
+        .dashboard-main { 
+            display: flex; 
+            gap: 15px; 
+        }
+        
+        .sidebar {
+            width: 250px; 
+            flex-shrink: 0;
+        }
+        
+        .main-content {
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px;
+        }
+        
+        /* КАРТОЧКИ */
+        .profile-card {
+            border: 1px solid #8b1a1a; 
+            background: rgba(15,10,10,0.7);
+            padding: 15px; 
+            margin-bottom: 15px; 
+            border-radius: 5px;
+        }
+        
+        .card-header {
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            margin-bottom: 15px;
+            padding-bottom: 10px; 
+            border-bottom: 1px solid #8b1a1a;
+        }
+        
+        .card-header h2 { 
+            color: #d92626; 
+            font-size: 1em; 
+            margin: 0; 
+        }
+        
+        /* ИГРОВАЯ СИСТЕМА */
+        .game-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .game-stat {
+            text-align: center;
+            padding: 10px;
+            border: 1px solid rgba(139,26,26,0.3);
+            border-radius: 5px;
+        }
+        
+        .game-stat-value {
+            font-size: 1.2em;
+            color: #d92626;
+            font-weight: bold;
+        }
+        
+        .game-stat-label {
+            font-size: 0.7em;
+            opacity: 0.8;
+        }
+        
+        /* СПИНЫ */
+        .spin-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .spin-option {
+            padding: 15px;
+            border: 1px solid;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .spin-basic {
+            border-color: #4488ff;
+            background: rgba(68,136,255,0.1);
+        }
+        
+        .spin-premium {
+            border-color: #d92626;
+            background: rgba(217,38,38,0.1);
+        }
+        
+        .spin-legendary {
+            border-color: #ffaa00;
+            background: rgba(255,170,0,0.1);
+        }
+        
+        .spin-option:hover {
+            transform: translateY(-2px);
+        }
+        
+        .spin-price {
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        
+        .spin-chance {
+            font-size: 0.7em;
+            opacity: 0.8;
+        }
+        
+        /* КАРТОЧКИ КОЛЛЕКЦИИ */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .card-item {
+            border: 1px solid;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .card-common { border-color: #4488ff; background: rgba(68,136,255,0.1); }
+        .card-rare { border-color: #44ff44; background: rgba(68,255,68,0.1); }
+        .card-epic { border-color: #d92626; background: rgba(217,38,38,0.1); }
+        .card-legendary { border-color: #ffaa00; background: rgba(255,170,0,0.1); }
+        
+        .card-emoji {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        
+        .card-name {
+            font-size: 0.7em;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .card-rarity {
+            font-size: 0.6em;
+            opacity: 0.8;
+        }
+        
+        .card-count {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* ТОРГОВАЯ ПЛОЩАДКА */
+        .marketplace-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        
+        .market-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid rgba(139,26,26,0.3);
+            border-radius: 5px;
+            margin-bottom: 8px;
+        }
+        
+        .market-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .market-price {
+            color: #44ff44;
+            font-weight: bold;
+        }
+        
+        /* КНОПКИ */
+        .btn {
+            padding: 8px 15px;
+            border: 1px solid #d92626;
+            background: rgba(217,38,38,0.2);
+            color: #e8e6e3;
+            cursor: pointer;
+            border-radius: 3px;
+            font-family: 'Courier New';
+            transition: all 0.3s ease;
+            font-size: 0.8em;
+        }
+        
+        .btn:hover {
+            background: rgba(217,38,38,0.3);
+        }
+        
+        .btn-success {
+            border-color: #44ff44;
+            background: rgba(68,255,68,0.1);
+        }
+        
+        .hidden { 
+            display: none; 
+        }
+
+        /* МОДАЛЬНЫЕ ОКНА */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: #0f0a0a;
+            border: 2px solid #d92626;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .modal-card {
+            font-size: 4em;
+            margin: 20px 0;
+        }
+        
+        /* МОБИЛЬНАЯ ВЕРСИЯ */
+        @media (max-width: 768px) {
+            .dashboard-main { 
+                flex-direction: column; 
+            }
+            
+            .sidebar { 
+                width: 100%; 
+            }
+            
+            .user-main-info {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .user-stats {
+                justify-content: center;
+            }
+            
+            .dashboard-nav {
+                flex-direction: column;
+            }
+            
+            .nav-btn {
+                width: 100%;
+            }
+            
+            .game-stats,
+            .spin-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .cards-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="matrix-bg"></div>
+    
+    <div class="dashboard-container">
+        <!-- ШАПКА -->
+        <div class="dashboard-header">
+            <div class="user-main-info">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-details">
+                    <h1 id="userName">Пользователь</h1>
+                    <div class="user-role" id="userRoleBadge">user</div>
+                    <div class="user-stats">
+                        <div class="stat-badge">💰 <span id="userCredits">0</span> кредитов</div>
+                        <div class="stat-badge">🃏 <span id="userCardsCount">0</span> карт</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dashboard-nav">
+                <button class="nav-btn" onclick="window.location.href='index.html'">← ГЛАВНАЯ</button>
+                <button class="nav-btn active" onclick="showSection('profile')">👤 ПРОФИЛЬ</button>
+                <button class="nav-btn" onclick="showSection('game')">🎮 ИГРА</button>
+                <button class="nav-btn" onclick="showSection('collection')">🃏 КОЛЛЕКЦИЯ</button>
+                <button class="nav-btn" onclick="showSection('market')">💰 РЫНОК</button>
+                <button class="nav-btn logout-btn" onclick="logout()">🚪 ВЫХОД</button>
+            </div>
+        </div>
+
+        <!-- ОСНОВНОЙ КОНТЕНТ -->
+        <div class="dashboard-main">
+            <!-- САЙДБАР -->
+            <div class="sidebar">
+                <div class="profile-card">
+                    <div class="card-header">
+                        <span>📈</span>
+                        <h2>ИГРОВАЯ СТАТИСТИКА</h2>
+                    </div>
+                    <div class="game-stats">
+                        <div class="game-stat">
+                            <div class="game-stat-value" id="statTotalCards">0</div>
+                            <div class="game-stat-label">Всего карт</div>
+                        </div>
+                        <div class="game-stat">
+                            <div class="game-stat-value" id="statUniqueCards">0</div>
+                            <div class="game-stat-label">Уникальных</div>
+                        </div>
+                        <div class="game-stat">
+                            <div class="game-stat-value" id="statSpins">0</div>
+                            <div class="game-stat-label">Спинов</div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="claimDailyBonus()" id="dailyBonusBtn">
+                        🎁 Ежедневная награда
+                    </button>
+                </div>
+                
+                <div class="profile-card">
+                    <div class="card-header">
+                        <span>⚡</span>
+                        <h2>БЫСТРЫЕ ДЕЙСТВИЯ</h2>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <button class="btn" onclick="showSection('game')">
+                            🎰 Открыть кейс
+                        </button>
+                        <button class="btn" onclick="showSection('market')">
+                            💰 Торговая площадка
+                        </button>
+                        <div id="adminQuickActions" class="hidden">
+                            <button class="btn" onclick="window.location.href='admin.html'">
+                                👑 Админ панель
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ОСНОВНОЕ СОДЕРЖИМОЕ -->
+            <div class="main-content">
+                <!-- РАЗДЕЛ ПРОФИЛЯ -->
+                <div id="profile-section">
+                    <div class="profile-card">
+                        <div class="card-header">
+                            <span>👤</span>
+                            <h2>ИНФОРМАЦИЯ ОБ УЧЕТНОЙ ЗАПИСИ</h2>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div style="padding: 10px; border: 1px solid rgba(139,26,26,0.3); border-radius: 3px;">
+                                <div style="font-size: 0.8em; opacity: 0.8;">Идентификатор:</div>
+                                <div style="color: #d92626; font-weight: bold;" id="infoUsername">-</div>
+                            </div>
+                            <div style="padding: 10px; border: 1px solid rgba(139,26,26,0.3); border-radius: 3px;">
+                                <div style="font-size: 0.8em; opacity: 0.8;">Роль:</div>
+                                <div style="color: #d92626; font-weight: bold;" id="infoRole">-</div>
+                            </div>
+                            <div style="padding: 10px; border: 1px solid rgba(139,26,26,0.3); border-radius: 3px;">
+                                <div style="font-size: 0.8em; opacity: 0.8;">Дата регистрации:</div>
+                                <div style="color: #d92626; font-weight: bold;" id="infoCreated">-</div>
+                            </div>
+                            <div style="padding: 10px; border: 1px solid rgba(139,26,26,0.3); border-radius: 3px;">
+                                <div style="font-size: 0.8em; opacity: 0.8;">Последний вход:</div>
+                                <div style="color: #d92626; font-weight: bold;" id="infoLastLogin">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- РАЗДЕЛ ИГРЫ -->
+                <div id="game-section" class="hidden">
+                    <div class="profile-card">
+                        <div class="card-header">
+                            <span>🎰</span>
+                            <h2>ОТКРЫТИЕ КЕЙСОВ</h2>
+                        </div>
+                        <p style="margin-bottom: 15px; font-size: 0.9em;">Выберите тип кейса для открытия:</p>
+                        
+                        <div class="spin-container">
+                            <div class="spin-option spin-basic" onclick="openSpin('basic')">
+                                <div>🟦 Обычный</div>
+                                <div class="spin-price">100 кредитов</div>
+                                <div class="spin-chance">Шанс на редкую: 25%</div>
+                            </div>
+                            <div class="spin-option spin-premium" onclick="openSpin('premium')">
+                                <div>🟥 Премиум</div>
+                                <div class="spin-price">500 кредитов</div>
+                                <div class="spin-chance">Шанс на эпическую: 15%</div>
+                            </div>
+                            <div class="spin-option spin-legendary" onclick="openSpin('legendary')">
+                                <div>🟧 Легендарный</div>
+                                <div class="spin-price">1000 кредитов</div>
+                                <div class="spin-chance">Шанс на легендарную: 10%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- РАЗДЕЛ КОЛЛЕКЦИИ -->
+                <div id="collection-section" class="hidden">
+                    <div class="profile-card">
+                        <div class="card-header">
+                            <span>🃏</span>
+                            <h2>МОЯ КОЛЛЕКЦИЯ</h2>
+                        </div>
+                        <div class="cards-grid" id="userCardsGrid">
+                            <!-- Карточки загружаются здесь -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- РАЗДЕЛ РЫНКА -->
+                <div id="market-section" class="hidden">
+                    <div class="profile-card">
+                        <div class="card-header">
+                            <span>💰</span>
+                            <h2>ТОРГОВАЯ ПЛОЩАДКА</h2>
+                        </div>
+                        <div class="marketplace-list" id="marketplaceList">
+                            <!-- Предложения рынка загружаются здесь -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО ВЫПАВШЕЙ КАРТЫ -->
+    <div class="modal" id="cardModal">
+        <div class="modal-content">
+            <h3>🎉 ВЫ ВЫИГРАЛИ!</h3>
+            <div class="modal-card" id="modalCardEmoji">🃏</div>
+            <div id="modalCardName">Название карты</div>
+            <div id="modalCardRarity" style="margin: 10px 0;"></div>
+            <button class="btn" onclick="closeModal()">Закрыть</button>
+        </div>
+    </div>
+
+    <script>
+        // БАЗА ДАННЫХ КАРТОЧЕК
+        const cardsDatabase = [
+            { id: 1, name: "Кибер-дракон", rarity: "legendary", value: 5000, emoji: "🐲" },
+            { id: 2, name: "Квантовый волк", rarity: "legendary", value: 4500, emoji: "🐺" },
+            { id: 3, name: "Неоновый феникс", rarity: "epic", value: 2000, emoji: "🔥" },
+            { id: 4, name: "Стальной голем", rarity: "epic", value: 1800, emoji: "🤖" },
+            { id: 5, name: "Виртуальный кот", rarity: "epic", value: 1500, emoji: "🐱" },
+            { id: 6, name: "Хакер-призрак", rarity: "rare", value: 800, emoji: "👻" },
+            { id: 7, name: "Код-воин", rarity: "rare", value: 750, emoji: "⚔️" },
+            { id: 8, name: "Данные-змея", rarity: "rare", value: 700, emoji: "🐍" },
+            { id: 9, name: "Шифр-паук", rarity: "rare", value: 650, emoji: "🕷️" },
+            { id: 10, name: "Вирус-охотник", rarity: "rare", value: 600, emoji: "🔍" },
+            { id: 11, name: "Бит-воин", rarity: "common", value: 300, emoji: "🛡️" },
+            { id: 12, name: "Поток-птица", rarity: "common", value: 280, emoji: "🐦" },
+            { id: 13, name: "Кэш-лис", rarity: "common", value: 250, emoji: "🦊" },
+            { id: 14, name: "Сервер-медведь", rarity: "common", value: 230, emoji: "🐻" },
+            { id: 15, name: "Файл-ящер", rarity: "common", value: 200, emoji: "🦎" },
+            { id: 16, name: "Диск-орёл", rarity: "common", value: 180, emoji: "🦅" },
+            { id: 17, name: "Роутер-сова", rarity: "common", value: 170, emoji: "🦉" },
+            { id: 18, name: "Память-ёж", rarity: "common", value: 160, emoji: "🦔" },
+            { id: 19, name: "Ядро-белка", rarity: "common", value: 150, emoji: "🐿️" },
+            { id: 20, name: "Сеть-муравей", rarity: "common", value: 100, emoji: "🐜" }
+        ];
+
+        // СИСТЕМА СПИНОВ
+        const spinConfig = {
+            basic: { price: 100, common: 75, rare: 25, epic: 0, legendary: 0 },
+            premium: { price: 500, common: 60, rare: 25, epic: 15, legendary: 0 },
+            legendary: { price: 1000, common: 50, rare: 25, epic: 15, legendary: 10 }
+        };
+
+        // ПЕРЕМЕННЫЕ
+        const currentUser = JSON.parse(localStorage.getItem('amera_currentUser'));
+        if(!currentUser) {
+            alert('Требуется авторизация');
+            window.location.href = 'index.html';
+        }
+
+        const users = JSON.parse(localStorage.getItem('amera_users')) || [];
+        let userGameData = currentUser.gameData || { credits: 1000, cards: [], dailyBonus: null, spinCount: 0 };
+
+        // ИНИЦИАЛИЗАЦИЯ
+        function initDashboard() {
+            loadUserInfo();
+            updateGameStats();
+            loadUserCollection();
+            
+            if(currentUser.role === 'admin') {
+                document.getElementById('adminQuickActions').classList.remove('hidden');
+            }
+            
+            checkDailyBonus();
+        }
+
+        function loadUserInfo() {
+            document.getElementById('userName').textContent = currentUser.username;
+            document.getElementById('userAvatar').textContent = currentUser.username.charAt(0).toUpperCase();
+            document.getElementById('infoUsername').textContent = currentUser.username;
+            document.getElementById('infoRole').textContent = currentUser.role === 'admin' ? '👑 Администратор' : '👤 Пользователь';
+            document.getElementById('infoCreated').textContent = new Date(currentUser.createdAt).toLocaleDateString('ru-RU');
+            document.getElementById('infoLastLogin').textContent = currentUser.lastLogin ? 
+                new Date(currentUser.lastLogin).toLocaleString('ru-RU') : 'Первый вход';
+            
+            const roleBadge = document.getElementById('userRoleBadge');
+            roleBadge.textContent = currentUser.role;
+            roleBadge.className = 'user-role role-' + currentUser.role;
+            
+            updateCreditsDisplay();
+        }
+
+        function updateCreditsDisplay() {
+            document.getElementById('userCredits').textContent = userGameData.credits;
+        }
+
+        function updateGameStats() {
+            const totalCards = userGameData.cards.reduce((sum, card) => sum + card.count, 0);
+            const uniqueCards = userGameData.cards.length;
+            
+            document.getElementById('userCardsCount').textContent = totalCards;
+            document.getElementById('statTotalCards').textContent = totalCards;
+            document.getElementById('statUniqueCards').textContent = uniqueCards;
+            document.getElementById('statSpins').textContent = userGameData.spinCount;
+        }
+
+        function showSection(sectionName) {
+            document.querySelectorAll('[id$="-section"]').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            document.getElementById(sectionName + '-section').classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            if(sectionName === 'collection') {
+                loadUserCollection();
+            } else if(sectionName === 'market') {
+                loadMarketplace();
+            }
+        }
+
+        // СИСТЕМА СПИНОВ
+        function openSpin(spinType) {
+            const config = spinConfig[spinType];
+            
+            if(userGameData.credits < config.price) {
+                alert('❌ Недостаточно кредитов!');
+                return;
+            }
+            
+            // Списываем кредиты
+            userGameData.credits -= config.price;
+            userGameData.spinCount++;
+            
+            // Генерируем карточку
+            const wonCard = generateCard(spinType);
+            
+            // Добавляем карточку в коллекцию
+            addCardToCollection(wonCard.id);
+            
+            // Обновляем данные
+            updateUserData();
+            updateCreditsDisplay();
+            updateGameStats();
+            
+            // Показываем результат
+            showWonCard(wonCard);
+        }
+
+        function generateCard(spinType) {
+            const config = spinConfig[spinType];
+            const random = Math.random() * 100;
+            
+            let rarity;
+            if(random <= config.legendary) rarity = 'legendary';
+            else if(random <= config.legendary + config.epic) rarity = 'epic';
+            else if(random <= config.legendary + config.epic + config.rare) rarity = 'rare';
+            else rarity = 'common';
+            
+            // Фильтруем карточки по редкости
+            const availableCards = cardsDatabase.filter(card => card.rarity === rarity);
+            const randomCard = availableCards[Math.floor(Math.random() * availableCards.length)];
+            
+            return randomCard;
+        }
+
+        function addCardToCollection(cardId) {
+            const existingCard = userGameData.cards.find(card => card.cardId === cardId);
+            
+            if(existingCard) {
+                existingCard.count++;
+            } else {
+                userGameData.cards.push({ cardId: cardId, count: 1 });
+            }
+        }
+
+        function showWonCard(card) {
+            const modal = document.getElementById('cardModal');
+            const rarityNames = {
+                'common': '🟦 Обычная',
+                'rare': '🟩 Редкая', 
+                'epic': '🟥 Эпическая',
+                'legendary': '🟧 Легендарная'
+            };
+            
+            document.getElementById('modalCardEmoji').textContent = card.emoji;
+            document.getElementById('modalCardName').textContent = card.name;
+            document.getElementById('modalCardRarity').innerHTML = 
+                `<span style="color: #d92626;">${rarityNames[card.rarity]}</span>`;
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('cardModal').style.display = 'none';
+        }
+
+        // СИСТЕМА КОЛЛЕКЦИИ
+        function loadUserCollection() {
+            const grid = document.getElementById('userCardsGrid');
+            grid.innerHTML = '';
+            
+            userGameData.cards.forEach(userCard => {
+                const cardData = cardsDatabase.find(card => card.id === userCard.cardId);
+                if(cardData) {
+                    const cardElement = document.createElement('div');
+                    cardElement.className = `card-item card-${cardData.rarity}`;
+                    cardElement.innerHTML = `
+                        <div class="card-emoji">${cardData.emoji}</div>
+                        <div class="card-name">${cardData.name}</div>
+                        <div class="card-rarity">${getRarityName(cardData.rarity)}</div>
+                        <div class="card-count">${userCard.count}</div>
+                    `;
+                    grid.appendChild(cardElement);
+                }
+            });
+        }
+
+        function getRarityName(rarity) {
+            const names = {
+                'common': 'Обычная',
+                'rare': 'Редкая',
+                'epic': 'Эпическая', 
+                'legendary': 'Легендарная'
+            };
+            return names[rarity] || rarity;
+        }
+
+        // ЕЖЕДНЕВНАЯ НАГРАДА
+        function checkDailyBonus() {
+            const today = new Date().toDateString();
+            const bonusBtn = document.getElementById('dailyBonusBtn');
+            
+            if(userGameData.dailyBonus === today) {
+                bonusBtn.disabled = true;
+                bonusBtn.textContent = '🎁 Награда получена сегодня';
+            } else {
+                bonusBtn.disabled = false;
+                bonusBtn.textContent = '🎁 Получить ежедневную награду';
+            }
+        }
+
+        function claimDailyBonus() {
+            const today = new Date().toDateString();
+            
+            userGameData.credits += 500;
+            userGameData.dailyBonus = today;
+            
+            updateUserData();
+            updateCreditsDisplay();
+            checkDailyBonus();
+            
+            alert('🎉 Вы получили 500 кредитов! Возвращайтесь завтра за новой наградой.');
+        }
+
+        // ТОРГОВАЯ ПЛОЩАДКА
+        function loadMarketplace() {
+            const marketList = document.getElementById('marketplaceList');
+            marketList.innerHTML = '<div style="text-align: center; padding: 20px; opacity: 0.7;">Рынок пока пуст</div>';
+            
+            // Здесь будет логика загрузки предложений рынка
+        }
+
+        // ОБНОВЛЕНИЕ ДАННЫХ
+        function updateUserData() {
+            const userIndex = users.findIndex(u => u.id === currentUser.id);
+            if(userIndex !== -1) {
+                users[userIndex].gameData = userGameData;
+                localStorage.setItem('amera_users', JSON.stringify(users));
+                
+                currentUser.gameData = userGameData;
+                localStorage.setItem('amera_currentUser', JSON.stringify(currentUser));
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('amera_currentUser');
+            window.location.href = 'index.html';
+        }
+
+        // ЗАПУСК
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>
